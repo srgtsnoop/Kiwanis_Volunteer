@@ -15,11 +15,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{DB_PATH}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-# ← this one block replaces any create_tables() call 
-with app.app_context():  
-    db.create_all()
-
-# …then immediately define your model and routes below…
+# 1) Define your model(s)
 class VolunteerEntry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.String(10))
@@ -30,6 +26,11 @@ class VolunteerEntry(db.Model):
     total_hours = db.Column(db.Float)
     notes = db.Column(db.String(300))
 
+# 2) Create tables under the proper app context
+with app.app_context():
+    db.create_all()
+
+# 3) Define routes
 @app.route('/')
 def index():
     entries = VolunteerEntry.query.order_by(VolunteerEntry.date.desc()).all()
@@ -44,12 +45,14 @@ def log():
         start = request.form['start']
         end = request.form['end']
         notes = request.form['notes']
+
         try:
             start_dt = datetime.strptime(f"{date} {start}", "%Y-%m-%d %H:%M")
-            end_dt = datetime.strptime(f"{date} {end}", "%Y-%m-%d %H:%M")
+            end_dt = datetime.strptime(f"{date} {end}",   "%Y-%m-%d %H:%M")
             total_hours = round((end_dt - start_dt).seconds / 3600, 2)
         except:
             total_hours = 0
+
         entry = VolunteerEntry(
             date=date,
             name=name,
@@ -67,12 +70,11 @@ def log():
 @app.route('/summary')
 def summary():
     summary_data = {}
-    all_entries = VolunteerEntry.query.all()
-    for entry in all_entries:
-        summary_data[entry.name] = summary_data.get(entry.name, 0) + entry.total_hours
+    for e in VolunteerEntry.query.all():
+        summary_data[e.name] = summary_data.get(e.name, 0) + e.total_hours
     return render_template('summary.html', totals=summary_data)
 
+# 4) Run block for Render (uses $PORT and listens on 0.0.0.0)
 if __name__ == '__main__':
-    import os
     port = int(os.environ.get("PORT", 5000))
     app.run(debug=True, host='0.0.0.0', port=port)
