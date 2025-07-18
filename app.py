@@ -1,8 +1,3 @@
-from flask import Flask, render_template, request, redirect
-from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
-import os
-
 app = Flask(__name__)
 os.makedirs("data", exist_ok=True)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data/volunteer.db'
@@ -19,9 +14,11 @@ class VolunteerEntry(db.Model):
     total_hours = db.Column(db.Float)
     notes = db.Column(db.String(300))
 
-@app.before_first_request
+# Fix here: create tables on startup
 def create_tables():
     db.create_all()
+
+create_tables()
 
 @app.route('/')
 def index():
