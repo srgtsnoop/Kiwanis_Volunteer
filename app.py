@@ -2,15 +2,24 @@ from flask import Flask, render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import os
+import pathlib
+
+# Resolve an absolute data directory so SQLite can write to it reliably
+BASE_DIR = pathlib.Path(__file__).parent.resolve()
+DATA_DIR = BASE_DIR / "data"
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+DB_PATH = DATA_DIR / "volunteer.db"
 
 app = Flask(__name__)
-os.makedirs("data", exist_ok=True)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data/volunteer.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{DB_PATH}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
+# Create tables under the correct app context
 with app.app_context():
     db.create_all()
+
+# …followed by your model, routes, etc.
 
 class VolunteerEntry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
