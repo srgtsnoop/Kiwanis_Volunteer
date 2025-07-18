@@ -4,7 +4,7 @@ from datetime import datetime
 import os
 import pathlib
 
-# Resolve an absolute data directory so SQLite can write to it reliably
+# Resolve an absolute data directory
 BASE_DIR = pathlib.Path(__file__).parent.resolve()
 DATA_DIR = BASE_DIR / "data"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
@@ -15,12 +15,11 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{DB_PATH}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-# Create tables under the correct app context
-with app.app_context():
+# ← this one block replaces any create_tables() call 
+with app.app_context():  
     db.create_all()
 
-# …followed by your model, routes, etc.
-
+# …then immediately define your model and routes below…
 class VolunteerEntry(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.String(10))
@@ -30,12 +29,6 @@ class VolunteerEntry(db.Model):
     end_time = db.Column(db.String(5))
     total_hours = db.Column(db.Float)
     notes = db.Column(db.String(300))
-
-# Fix here: create tables on startup
-def create_tables():
-    db.create_all()
-
-create_tables()
 
 @app.route('/')
 def index():
@@ -80,4 +73,6 @@ def summary():
     return render_template('summary.html', totals=summary_data)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    import os
+    port = int(os.environ.get("PORT", 5000))
+    app.run(debug=True, host='0.0.0.0', port=port)
