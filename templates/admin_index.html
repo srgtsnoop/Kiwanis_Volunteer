@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Center{% endblock %}
+
+{% block content %}
+  <h2>Admin Center</h2>
+  <div class="row gy-4">
+    <div class="col-md-4">
+      <div class="card h-100 text-center">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">User Management</h5>
+          <p class="card-text flex-grow-1">
+            View, edit, and delete application users.
+          </p>
+          <a href="{{ url_for('admin.list_users') }}"
+             class="btn btn-primary mt-auto">
+            Go
+          </a>
+        </div>
+      </div>
+    </div>
+    <!-- Edit Volunteer Hours card -->
+    <div class="col-md-4">
+      <div class="card h-100 text-center">
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">Edit Volunteer Hours</h5>
+          <p class="card-text flex-grow-1">
+            View and modify any volunteer hours entries.
+          </p>
+          <a href="{{ url_for('admin.list_entries') }}"
+             class="btn btn-primary mt-auto">
+            Go
+          </a>
+        </div>
+      </div>
+    </div>
+ <!-- You can add more cards here for other Admin tools -->
+  </div>
+{% endblock %}

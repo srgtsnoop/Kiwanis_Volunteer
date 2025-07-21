@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}User Management{% endblock %}
+
+{% block content %}
+  <h2>User Management</h2>
+  <a href="{{ url_for('admin.admin_index') }}" class="btn btn-link mb-3">← Back to Admin Center</a>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Full Name</th>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td>{{ u.full_name }}</td>
+        <td>{{ u.username }}</td>
+        <td>{{ u.email }}</td>
+        <td>{{ u.role }}</td>
+        <td>
+          <a href="{{ url_for('admin.edit_user', user_id=u.id) }}"
+             class="btn btn-sm btn-outline-primary">Edit</a>
+          <form method="POST"
+                action="{{ url_for('admin.delete_user', user_id=u.id) }}"
+                style="display:inline"
+                onsubmit="return confirm('Delete user {{ u.username }}?');">
+            <button type="submit" class="btn btn-sm btn-outline-danger">
+              Delete
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

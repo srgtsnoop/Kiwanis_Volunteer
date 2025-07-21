@@ -1,20 +1,68 @@
-<!doctype html>
-<html>
-<head>
-    <title>Log Volunteer Hours</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-</head>
-<body class="container mt-4">
-    <h1>Log Volunteer Hours</h1>
-    <form method="post">
-        <div class="mb-2"><label>Name: <input class="form-control" name="name" required></label></div>
-        <div class="mb-2"><label>Event: <input class="form-control" name="event" required></label></div>
-        <div class="mb-2"><label>Date (YYYY-MM-DD): <input class="form-control" name="date"></label></div>
-        <div class="mb-2"><label>Start Time (HH:MM 24hr): <input class="form-control" name="start" required></label></div>
-        <div class="mb-2"><label>End Time (HH:MM 24hr): <input class="form-control" name="end" required></label></div>
-        <div class="mb-2"><label>Notes: <input class="form-control" name="notes"></label></div>
-        <button class="btn btn-success">Submit</button>
-        <a href="/" class="btn btn-secondary">Cancel</a>
+{% extends 'base.html' %}
+
+{% block title %}Log Hours{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <h2>Log New Hours</h2>
+    <form method="POST" action="{{ url_for('log') }}">
+      <div class="mb-3">
+        <label for="date" class="form-label">Date</label>
+        <input
+          type="date"
+          id="date"
+          name="date"
+          class="form-control"
+          value="{{ request.form.get('date', '') }}"
+          required>
+      </div>
+
+      <div class="mb-3">
+        <label for="event" class="form-label">Event / Description</label>
+        <input
+          type="text"
+          id="event"
+          name="event"
+          class="form-control"
+          value="{{ request.form.get('event', '') }}"
+          required>
+      </div>
+
+      <div class="mb-3">
+        <label for="start" class="form-label">Start Time</label>
+        <input
+          type="time"
+          id="start"
+          name="start"
+          class="form-control"
+          value="{{ request.form.get('start', '') }}"
+          required>
+      </div>
+
+      <div class="mb-3">
+        <label for="end" class="form-label">End Time</label>
+        <input
+          type="time"
+          id="end"
+          name="end"
+          class="form-control"
+          value="{{ request.form.get('end', '') }}"
+          required>
+      </div>
+
+      <div class="mb-3">
+        <label for="notes" class="form-label">Notes (optional)</label>
+        <textarea
+          id="notes"
+          name="notes"
+          class="form-control"
+          rows="3">{{ request.form.get('notes', '') }}</textarea>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Log Hours</button>
+      <a href="{{ url_for('index') }}" class="btn btn-link">Cancel</a>
     </form>
-</body>
-</html>
+  </div>
+</div>
+{% endblock %}

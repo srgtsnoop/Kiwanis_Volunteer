@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}All Volunteer Entries{% endblock %}
+
+{% block content %}
+  <h2>All Volunteer Entries</h2>
+  <a href="{{ url_for('admin.admin_index') }}" class="btn btn-link mb-3">
+    ← Back to Admin Center
+  </a>
+
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Volunteer</th>
+        <th>Event</th>
+        <th>Start</th>
+        <th>End</th>
+        <th>Hours</th>
+        <th>Notes</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for entry in entries %}
+      <tr>
+        <td>{{ entry.date }}</td>
+        <td>{{ entry.user.full_name }}</td>
+        <td>{{ entry.event }}</td>
+        <td>{{ entry.start_time }}</td>
+        <td>{{ entry.end_time }}</td>
+        <td>{{ entry.total_hours }}</td>
+        <td>{{ entry.notes or '' }}</td>
+        <td>
+          <a href="{{ url_for('edit_entry', id=entry.id) }}"
+             class="btn btn-sm btn-outline-primary">Edit</a>
+          <form method="POST"
+                action="{{ url_for('delete_entry', id=entry.id) }}"
+                style="display:inline"
+                onsubmit="return confirm('Delete this entry?');">
+            <button type="submit"
+                    class="btn btn-sm btn-outline-danger">
+              Delete
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}

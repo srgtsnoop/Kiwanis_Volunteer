@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}Reporting Dashboard{% endblock %}
+
+{% block content %}
+  <h2>Reporting Dashboard</h2>
+
+  <form method="POST" action="{{ url_for('report') }}" class="row g-3 mb-4">
+    <div class="col-md-4">
+      <label for="start_date" class="form-label">Start Date</label>
+      <input
+        type="date"
+        id="start_date"
+        name="start_date"
+        class="form-control"
+        value="{{ start_date or '' }}"
+        required>
+    </div>
+    <div class="col-md-4">
+      <label for="end_date" class="form-label">End Date</label>
+      <input
+        type="date"
+        id="end_date"
+        name="end_date"
+        class="form-control"
+        value="{{ end_date or '' }}"
+        required>
+    </div>
+    <div class="col-md-4 align-self-end">
+      <button type="submit" class="btn btn-primary">Generate Report</button>
+    </div>
+  </form>
+
+  {% if totals is not none %}
+    <h4>Totals from {{ start_date }} to {{ end_date }}</h4>
+    <table class="table table-bordered mt-2">
+      <thead>
+        <tr>
+          <th>Full Name</th>
+          <th>Total Hours</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for full, hours in totals.items() %}
+          <tr>
+            <td>{{ full }}</td>
+            <td>{{ hours }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% endif %}
+
+  {% if totals %}
+    <div class="mt-3">
+      <a
+        href="{{ url_for('export_xlsx_totals',
+                         start_date=start_date,
+                         end_date=end_date) }}"
+        class="btn btn-success me-2">
+        Export Total Hours
+      </a>
+      <a
+        href="{{ url_for('export_xlsx_events',
+                         start_date=start_date,
+                         end_date=end_date) }}"
+        class="btn btn-secondary">
+        Export Events by Volunteer
+      </a>
+    </div>
+  {% endif %}
+{% endblock %}

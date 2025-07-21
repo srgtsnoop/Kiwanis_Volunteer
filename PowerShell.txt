@@ -1,0 +1,6 @@
+# PowerShell
+$env:FLASK_APP       = "app.py"
+$env:FLASK_ENV       = "development"
+$env:DATABASE_URL    = "sqlite:///data/volunteer_test.db"
+$env:SECRET_KEY      = "test-secret"
+flask run

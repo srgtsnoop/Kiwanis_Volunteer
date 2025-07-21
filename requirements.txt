@@ -1,2 +1,7 @@
 Flask
 Flask_SQLAlchemy
+Flask_Login
+pandas
+openpyxl
+gunicorn
+python-dotenv

@@ -1,32 +1,59 @@
-<!doctype html>
-<html>
-<head>
-    <title>Volunteer Hours</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-</head>
-<body class="container mt-4">
+{% extends 'base.html' %}
+
+{% block title %}Volunteer Hours{% endblock %}
+
+{% block content %}
+  <div class="d-flex justify-content-between align-items-center mb-4">
     <h1>Volunteer Hours</h1>
-    <a class="btn btn-primary" href="/log">Log Hours</a>
-    <a class="btn btn-secondary" href="/summary">View Summary</a>
-    <table class="table table-striped mt-4">
-        <thead>
-            <tr>
-                <th>Date</th><th>Name</th><th>Event</th><th>Start</th><th>End</th><th>Hours</th><th>Notes</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for row in entries %}
-            <tr>
-                <td>{{ row['Date'] }}</td>
-                <td>{{ row['Volunteer Name'] }}</td>
-                <td>{{ row['Event'] }}</td>
-                <td>{{ row['Start Time'] }}</td>
-                <td>{{ row['End Time'] }}</td>
-                <td>{{ row['Total Hours'] }}</td>
-                <td>{{ row['Notes'] }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</body>
-</html>
+    <div>
+      <a href="{{ url_for('log') }}"     class="btn btn-primary">Log Hours</a>
+      <a href="{{ url_for('summary') }}" class="btn btn-secondary">View Summary</a>
+    </div>
+  </div>
+
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Name</th>
+        <th>Event</th>
+        <th>Start</th>
+        <th>End</th>
+        <th>Hours</th>
+        <th>Notes</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for entry in entries %}
+        <tr>
+          <td>{{ entry.date }}</td>
+          <td>{{ entry.name }}</td>
+          <td>{{ entry.event }}</td>
+          <td>{{ entry.start_time }}</td>
+          <td>{{ entry.end_time }}</td>
+          <td>{{ entry.total_hours }}</td>
+          <td>{{ entry.notes or '' }}</td>
+          <td>
+            <a href="{{ url_for('edit_entry', id=entry.id) }}"
+               class="btn btn-sm btn-outline-primary">
+              Edit
+            </a>
+            <form method="POST"
+                  action="{{ url_for('delete_entry', id=entry.id) }}"
+                  style="display:inline"
+                  onsubmit="return confirm('Delete this entry?');">
+              <button type="submit" class="btn btn-sm btn-outline-danger">
+                Delete
+              </button>
+            </form>
+          </td>
+        </tr>
+      {% else %}
+        <tr>
+          <td colspan="8" class="text-center">No entries yet.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
