@@ -4,6 +4,8 @@ from datetime import datetime
 import io
 import pandas as pd
 import click
+from account_routes import account_bp
+
 
 from dotenv import load_dotenv
 from flask import (
@@ -47,6 +49,7 @@ db.init_app(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
+
 # Role hierarchy and decorator
 ROLE_LEVEL = {
     'volunteer': 0,
@@ -79,7 +82,6 @@ app.register_blueprint(account_bp)
 
 from admin_routes import admin_bp
 app.register_blueprint(admin_bp)
-
 
 # CLI command: initialize the database
 @app.cli.command('init-db')

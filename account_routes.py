@@ -1,19 +1,26 @@
 # ACCOUNT BLUEPRINT SETUP
-from flask import Blueprint, request, flash, redirect, url_for, render_template, abort
-from flask_login import login_required, current_user
-from app import db
+from flask import Blueprint, render_template, request, redirect, url_for, flash, abort
+from flask_login import login_user, logout_user, login_required, current_user
+from models import db, User
 
-account_bp = Blueprint('account', __name__)
+account_bp = Blueprint(
+    'account',
+    __name__,
+    template_folder='templates',   # or wherever your templates live
+    url_prefix=''                  # or '/account' if you prefer
+)
 
-@account_bp.route('/profile', methods=['GET', 'POST'])
+@account_bp.route('/profile', methods=['GET','POST'])
 @login_required
 def profile():
     if request.method == 'POST':
-        current_user.full_name = request.form.get('full_name', current_user.full_name)
-        current_user.email     = request.form.get('email', current_user.email)
+        current_user.full_name = request.form['full_name']
+        current_user.email     = request.form['email']
+        # … any other fields …
         db.session.commit()
-        flash('Profile updated successfully', 'success')
+        flash('Profile updated', 'success')
         return redirect(url_for('account.profile'))
+
     return render_template('profile.html', user=current_user)
 
 @account_bp.route('/change-password', methods=['GET', 'POST'])
