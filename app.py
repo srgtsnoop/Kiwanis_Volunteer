@@ -4,8 +4,6 @@ from datetime import datetime
 import io
 import pandas as pd
 import click
-from account_routes import account_bp
-
 
 from dotenv import load_dotenv
 from flask import (
@@ -17,26 +15,18 @@ from flask_login import (
     login_required, current_user
 )
 
-# Add ROLE_LEVEL
+# Role guard + hierarchy
 from utils import ROLE_LEVEL, role_required
 
-# ← Import the shared `db` and your models from models.py:
+# Shared db & models
 from models import db, User, VolunteerEntry
 
-# Load environment variables
+# Load .env
 load_dotenv()
 
-# Resolve project directories
-BASE_DIR = Path(__file__).parent.resolve()
-DATA_DIR = BASE_DIR / 'data'
-DATA_DIR.mkdir(parents=True, exist_ok=True)
-
-# Flask app setup
+# App & DB config
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'change-this-secret')
-
-# Database configuration
-# e.g. sqlite for dev; override via DATABASE_URL in env
 default_db = Path(__file__).parent / 'data' / 'volunteer.db'
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
     'DATABASE_URL',
@@ -44,34 +34,76 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
 )
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Initialize the shared SQLAlchemy instance
+# Init DB
 db.init_app(app)
 
-# Flask-Login setup
+# Bootstrap tables + Admin user on first request
+@app.before_first_request
+def bootstrap_database():
+    db.create_all()
+
+    admin_username = 'Admin'
+    admin_email    = 'wilker.ben@gmail.com'
+    admin_pw       = 'kiwanis'
+    full_name      = 'Administrator'
+
+    if not User.query.filter_by(username=admin_username).first():
+        admin = User(
+            full_name=full_name,
+            username=admin_username,
+            email=admin_email,
+            role='admin'
+        )
+        admin.set_password(admin_pw)
+        db.session.add(admin)
+        db.session.commit()
+
+# Login manager
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
-# Expose ROLE_LEVEL to Jinja
+# Expose roles to Jinja
 app.jinja_env.globals.update(ROLE_LEVEL=ROLE_LEVEL)
 
-# Flask-Login user loader
+# User loader
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# Now register your blueprints
+# ——— Now and only now import & register blueprints ———
 from account_routes import account_bp
 app.register_blueprint(account_bp)
 
 from admin_routes import admin_bp
 app.register_blueprint(admin_bp)
 
-# CLI command: initialize the database
+# ——— CLI command to init-db & seed Admin ———
 @app.cli.command('init-db')
 def init_db():
-    """Create the database tables."""
+    """Create tables & seed default Admin."""
     db.create_all()
     click.echo('Initialized the database.')
+
+    # Seed a default Admin account
+    admin_username = 'Admin'
+    admin_email    = 'wilker.ben@gmail.com'
+    admin_pw       = 'kiwanis'
+    full_name      = 'Administrator'
+
+    if not User.query.filter_by(username=admin_username).first():
+        admin = User(
+            full_name=full_name,
+            username=admin_username,
+            email=admin_email,
+            role='admin'
+        )
+        admin.set_password(admin_pw)
+        db.session.add(admin)
+        db.session.commit()
+        click.echo(f'Created Admin user "{admin_username}".')
+    else:
+        click.echo(f'Admin user "{admin_username}" already exists.')
+
 
 # Authentication routes
 @app.route('/register', methods=['GET','POST'])
@@ -200,9 +232,6 @@ def edit_entry(id):
             return redirect(url_for('index'))
     return render_template('edit_entry.html', entry=entry)
 
-    # GET: show edit form
-    return render_template('edit_entry.html', entry=entry)
-
 
 @app.route('/entry/<int:id>/delete', methods=['POST'])
 @login_required
@@ -321,9 +350,6 @@ def export_xlsx():
         as_attachment=True,
         download_name=filename
     )
-import io
-import pandas as pd
-from flask import send_file
 
 @app.route('/report/export/xlsx_totals')
 @login_required
