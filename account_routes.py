@@ -2,6 +2,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, abort
 from flask_login import login_user, logout_user, login_required, current_user
 from models import db, User
+from utils  import role_required
 
 account_bp = Blueprint(
     'account',

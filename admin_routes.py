@@ -1,7 +1,8 @@
 # admin_routes.py
 from flask import Blueprint, render_template, request, redirect, url_for, flash, abort
 from flask_login import login_required, current_user
-from app import db, User, VolunteerEntry, role_required
+from models import db, User, VolunteerEntry
+from utils  import role_required
 from app import VolunteerEntry
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')

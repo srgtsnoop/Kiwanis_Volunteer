@@ -16,8 +16,6 @@ from flask_login import (
     LoginManager, login_user, logout_user,
     login_required, current_user
 )
-from functools import wraps
-
 # ← Import the shared `db` and your models from models.py:
 from models import db, User, VolunteerEntry
 
@@ -48,25 +46,6 @@ db.init_app(app)
 # Flask-Login setup
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
-
-
-# Role hierarchy and decorator
-ROLE_LEVEL = {
-    'volunteer': 0,
-    'reporter':  1,
-    'admin':     2,
-}
-
-def role_required(min_role):
-    def decorator(fn):
-        @wraps(fn)
-        def wrapper(*args, **kwargs):
-            user_role = getattr(current_user, 'role', None)
-            if user_role is None or ROLE_LEVEL.get(user_role, 0) < ROLE_LEVEL[min_role]:
-                abort(403)
-            return fn(*args, **kwargs)
-        return wrapper
-    return decorator
 
 # Expose ROLE_LEVEL to Jinja
 app.jinja_env.globals.update(ROLE_LEVEL=ROLE_LEVEL)
