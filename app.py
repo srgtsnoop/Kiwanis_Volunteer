@@ -40,6 +40,7 @@ db.init_app(app)
 # Bootstrap tables + Admin user on first request
 @app.before_first_request
 def bootstrap_database():
+    # This will run before *every* request, but is idempotent
     db.create_all()
 
     admin_username = 'Admin'
