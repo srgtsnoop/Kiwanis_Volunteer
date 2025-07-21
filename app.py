@@ -1,28 +1,21 @@
 import os
 from pathlib import Path
 from datetime import datetime
+import io
+import pandas as pd
+import click
 
 from dotenv import load_dotenv
 from flask import (
     Flask, render_template, request, redirect, url_for,
-    flash, abort
+    flash, abort, send_file
 )
-from flask_sqlalchemy import SQLAlchemy
 from flask_login import (
     LoginManager, login_user, logout_user,
-    login_required, current_user, UserMixin
+    login_required, current_user
 )
 from werkzeug.security import generate_password_hash, check_password_hash
-import click
-
-import io
-import pandas as pd
-from flask import send_file
-
-
-#from flask_migrate import Migrate
-#migrate = Migrate(app, db)
-
+from functools import wraps
 
 # Load environment variables
 load_dotenv()
@@ -36,33 +29,8 @@ DATA_DIR.mkdir(parents=True, exist_ok=True)
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'change-this-secret')
 
-
-# Define a simple role hierarchy
-ROLE_LEVEL = {
-    'volunteer': 0,
-    'reporter':  1,
-    'admin':     2,
-}
-
-from functools import wraps
-from flask_login import current_user
-
-def role_required(min_role):
-    """Abort with 403 unless current_user.role ≥ min_role."""
-    def decorator(fn):
-        @wraps(fn)
-        def wrapper(*args, **kwargs):
-            user_role = getattr(current_user, 'role', None)
-            if user_role is None or ROLE_LEVEL.get(user_role, 0) < ROLE_LEVEL[min_role]:
-                abort(403)
-            return fn(*args, **kwargs)
-        return wrapper
-    return decorator
-
-# Make ROLE_LEVEL available in all templates
-app.jinja_env.globals.update(ROLE_LEVEL=ROLE_LEVEL)
-
-# Database config
+# Database configuration
+# e.g. sqlite for dev; override via DATABASE_URL in env
 default_db = DATA_DIR / 'volunteer.db'
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
     'DATABASE_URL',
@@ -70,16 +38,14 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
 )
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# Extensions
-db = SQLAlchemy(app)
+# Initialize the shared SQLAlchemy instance
+db.init_app(app)
+
+# Flask-Login setup
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
 
-from functools import wraps
-from flask import abort
-from flask_login import current_user
-
-# Define a simple role hierarchy
+# Role hierarchy and decorator
 ROLE_LEVEL = {
     'volunteer': 0,
     'reporter':  1,
@@ -98,33 +64,8 @@ def role_required(min_role):
         return wrapper
     return decorator
 
-# Models
-class User(UserMixin, db.Model):
-    __tablename__ = 'user'
-
-    id            = db.Column(db.Integer,   primary_key=True)
-    full_name     = db.Column(db.String(150), nullable=False)
-    username      = db.Column(db.String(100), unique=True, nullable=False)
-    email         = db.Column(db.String(150), unique=True, nullable=False)
-    role          = db.Column(db.String(50),  nullable=False, default='volunteer')
-    password_hash = db.Column(db.String(128), nullable=False)
-
-    def set_password(self, pw):
-        self.password_hash = generate_password_hash(pw)
-
-    def check_password(self, pw):
-        return check_password_hash(self.password_hash, pw)
-
-class VolunteerEntry(db.Model):
-    id          = db.Column(db.Integer, primary_key=True)
-    user_id     = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    user        = db.relationship('User', backref='entries')
-    date        = db.Column(db.String(10))
-    event       = db.Column(db.String(200))
-    start_time  = db.Column(db.String(5))
-    end_time    = db.Column(db.String(5))
-    total_hours = db.Column(db.Float)
-    notes       = db.Column(db.String(300))
+# Expose ROLE_LEVEL to Jinja
+app.jinja_env.globals.update(ROLE_LEVEL=ROLE_LEVEL)
 
 # Flask-Login user loader
 @login_manager.user_loader
