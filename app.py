@@ -7,15 +7,17 @@ import click
 
 from dotenv import load_dotenv
 from flask import (
-    Flask, render_template, request, redirect, url_for,
-    flash, abort, send_file
+    Flask, render_template, request, redirect,
+    url_for, flash, abort, send_file
 )
 from flask_login import (
     LoginManager, login_user, logout_user,
     login_required, current_user
 )
-from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
+
+# ← Import the shared `db` and your models from models.py:
+from models import db, User, VolunteerEntry
 
 # Load environment variables
 load_dotenv()
@@ -31,7 +33,7 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'change-this-secret')
 
 # Database configuration
 # e.g. sqlite for dev; override via DATABASE_URL in env
-default_db = DATA_DIR / 'volunteer.db'
+default_db = Path(__file__).parent / 'data' / 'volunteer.db'
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
     'DATABASE_URL',
     f"sqlite:///{default_db.as_posix()}"
@@ -53,7 +55,6 @@ ROLE_LEVEL = {
 }
 
 def role_required(min_role):
-    """Abort with 403 unless current_user.role ≥ min_role."""
     def decorator(fn):
         @wraps(fn)
         def wrapper(*args, **kwargs):
@@ -72,7 +73,7 @@ app.jinja_env.globals.update(ROLE_LEVEL=ROLE_LEVEL)
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# Register account routes blueprint
+# Now register your blueprints
 from account_routes import account_bp
 app.register_blueprint(account_bp)
 
