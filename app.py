@@ -16,6 +16,10 @@ from flask_login import (
     LoginManager, login_user, logout_user,
     login_required, current_user
 )
+
+# Add ROLE_LEVEL
+from utils import ROLE_LEVEL, role_required
+
 # ← Import the shared `db` and your models from models.py:
 from models import db, User, VolunteerEntry
 
