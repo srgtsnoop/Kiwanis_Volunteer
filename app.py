@@ -26,12 +26,15 @@ load_dotenv()
 
 # App & DB config
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'change-this-secret')
-default_db = Path(__file__).parent / 'data' / 'volunteer.db'
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
-    'DATABASE_URL',
-    f"sqlite:///{default_db.as_posix()}"
-)
+
+if os.environ.get("RENDER") == "true" or os.environ.get("ON_RENDER") == "true":
+    app.config.from_object("config.ProductionConfig")
+elif os.environ.get("FLASK_ENV") == "development":
+    app.config.from_object("config.DevelopmentConfig")
+elif os.environ.get("FLASK_ENV") == "testing":
+    app.config.from_object("config.TestingConfig")
+else:
+    app.config.from_object("config.DevelopmentConfig")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Init DB

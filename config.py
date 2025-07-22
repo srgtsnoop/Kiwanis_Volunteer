@@ -20,3 +20,9 @@ class TestingConfig(BaseConfig):
     # in‑memory DB or a throwaway file
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
     TESTING = True
+    
+class ProductionConfig(BaseConfig):
+    SQLALCHEMY_DATABASE_URI = os.environ.get(
+        "DATABASE_URL", "sqlite:////tmp/volunteer.db"
+    )
+    DEBUG = False
