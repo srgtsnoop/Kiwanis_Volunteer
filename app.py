@@ -40,31 +40,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 # Init DB
 db.init_app(app)
 
-# Bootstrap tables + Admin user on first request
-@app.before_first_request
-def bootstrap_database():
-    # 1. Create all tables (run only once per server process)
-    db.create_all()
-
-    # 2. Robust admin account creation
-    admin_username = 'Admin'
-    admin_email    = 'wilker.ben@gmail.com'
-    admin_pw       = 'kiwanis'
-    full_name      = 'Administrator'
-
-    # Only create if doesn't exist
-    if not User.query.filter_by(username=admin_username).first():
-        admin = User(
-            full_name=full_name,
-            username=admin_username,
-            email=admin_email,
-            role='admin'
-        )
-        admin.set_password(admin_pw)
-        db.session.add(admin)
-        db.session.commit()
-
-
 # Login manager
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
