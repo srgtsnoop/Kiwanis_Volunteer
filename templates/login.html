@@ -39,15 +39,15 @@
       {% endif %}
     {% endwith %}
 
+    <!-- REGULAR HTML FORM HERE -->
     <form method="post" autocomplete="off">
-      {{ form.hidden_tag() if form and form.hidden_tag }}
       <div class="mb-3">
         <label for="username" class="form-label">Username</label>
-        {{ form.username(class="form-control", id="username", placeholder="Enter username") if form and form.username else '' }}
+        <input type="text" class="form-control" name="username" id="username" placeholder="Enter username" required>
       </div>
       <div class="mb-3">
         <label for="password" class="form-label">Password</label>
-        {{ form.password(class="form-control", id="password", placeholder="Enter password") if form and form.password else '' }}
+        <input type="password" class="form-control" name="password" id="password" placeholder="Enter password" required>
       </div>
       <button type="submit" class="btn btn-primary w-100">Login</button>
     </form>
@@ -56,4 +56,5 @@
     </div>
   </div>
 </div>
+
 {% endblock %}
