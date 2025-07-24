@@ -1,33 +1,59 @@
-{% extends 'base.html' %}
-{% block title %}Log In{% endblock %}
+{% extends "base.html" %}
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-md-6">
-    <h2 class="mb-4">Log In</h2>
-    <form method="POST" action="{{ url_for('login') }}">
+
+<style>
+  body {
+    /* Responsive background image, covers whole page */
+    background: url("{{ url_for('static', filename='background_image.jpg') }}") no-repeat center center fixed;
+    background-size: cover;
+  }
+  .login-box {
+    background: rgba(255, 255, 255, 0.88);
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.14);
+    max-width: 350px;
+    margin: 7vh auto 0 auto;
+  }
+  @media (max-width: 576px) {
+    .login-box {
+      margin-top: 2vh;
+      padding: 1rem;
+      max-width: 98vw;
+    }
+  }
+</style>
+
+<div class="d-flex justify-content-center align-items-center" style="min-height:90vh;">
+  <div class="login-box">
+    <h2 class="text-center mb-4">Login</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, msg in messages %}
+          <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+            {{ msg }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="post" autocomplete="off">
+      {{ form.hidden_tag() if form and form.hidden_tag }}
       <div class="mb-3">
         <label for="username" class="form-label">Username</label>
-        <input
-          type="text"
-          class="form-control"
-          id="username"
-          name="username"
-          required
-        >
+        {{ form.username(class="form-control", id="username", placeholder="Enter username") if form and form.username else '' }}
       </div>
       <div class="mb-3">
         <label for="password" class="form-label">Password</label>
-        <input
-          type="password"
-          class="form-control"
-          id="password"
-          name="password"
-          required
-        >
+        {{ form.password(class="form-control", id="password", placeholder="Enter password") if form and form.password else '' }}
       </div>
-      <button type="submit" class="btn btn-primary">Log In</button>
-      <a href="{{ url_for('register') }}" class="btn btn-link">Register</a>
+      <button type="submit" class="btn btn-primary w-100">Login</button>
     </form>
+    <div class="text-center mt-3">
+      <a href="{{ url_for('register') }}">Don’t have an account? Register</a>
+    </div>
   </div>
 </div>
 {% endblock %}
