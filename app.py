@@ -2,10 +2,11 @@ import os
 from pathlib import Path
 from datetime import datetime
 import io
+
 import pandas as pd
 import click
-
 from dotenv import load_dotenv
+
 from flask import (
     Flask, render_template, request, redirect,
     url_for, flash, abort, send_file
@@ -14,9 +15,11 @@ from flask_login import (
     LoginManager, login_user, logout_user,
     login_required, current_user
 )
-
-from flask import Flask
 from flask_mail import Mail
+
+from models import db, User, VolunteerEntry
+from forms import BulkHoursForm
+
 
 # Role guard + hierarchy
 from utils import ROLE_LEVEL, role_required
@@ -293,6 +296,38 @@ def report():
                            totals=totals if request.method=='POST' else None,
                            start_date=start_date,
                            end_date=end_date)
+    
+def is_reporter_or_admin():
+    return current_user.role in ['reporter', 'admin']
+
+@app.route('/bulk-add-hours', methods=['GET', 'POST'])
+@login_required
+def bulk_add_hours():
+    if not is_reporter_or_admin():
+        flash("You don't have permission to access this page.", "danger")
+        return redirect(url_for('index'))
+
+    form = BulkHoursForm()
+    form.volunteers.choices = [(u.id, u.full_name) for u in User.query.order_by(User.full_name).all()]
+    if form.validate_on_submit():
+        for volunteer_id in form.volunteers.data:
+            user = User.query.get(volunteer_id)
+            entry = VolunteerEntry(
+                user_id=volunteer_id,
+                date=form.date.data.strftime('%Y-%m-%d'),
+                name=user.full_name,
+                event=form.event.data,
+                start_time=form.start_time.data,
+                end_time=form.end_time.data,
+                total_hours=form.total_hours.data,
+                notes=form.notes.data,
+            )
+            db.session.add(entry)
+        db.session.commit()
+        flash('Bulk volunteer hours added!', 'success')
+        return redirect(url_for('volunteer_dashboard'))  # Replace with your dashboard route
+    return render_template('bulk_add_hours.html', form=form)
+
 
 @app.route('/report/export/xlsx')
 @login_required

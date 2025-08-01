@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Bulk Add Volunteer Hours</h2>
+    <form method="post">
+        {{ form.hidden_tag() }}
+
+        <div class="mb-3">
+            {{ form.event.label(class="form-label") }}
+            {{ form.event(class="form-control") }}
+        </div>
+        <div class="mb-3">
+            {{ form.date.label(class="form-label") }}
+            {{ form.date(class="form-control") }}
+        </div>
+        <div class="mb-3">
+            {{ form.start_time.label(class="form-label") }}
+            {{ form.start_time(class="form-control") }}
+        </div>
+        <div class="mb-3">
+            {{ form.end_time.label(class="form-label") }}
+            {{ form.end_time(class="form-control") }}
+        </div>
+        <div class="mb-3">
+            {{ form.total_hours.label(class="form-label") }}
+            {{ form.total_hours(class="form-control") }}
+        </div>
+        <div class="mb-3">
+            {{ form.volunteers.label(class="form-label") }}
+            <select name="volunteers" class="form-control" multiple required>
+                {% for value, label in form.volunteers.choices %}
+                    <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+            <small class="form-text text-muted">Hold Ctrl (Windows) or Cmd (Mac) to select multiple volunteers.</small>
+        </div>
+        <div class="mb-3">
+            {{ form.notes.label(class="form-label") }}
+            {{ form.notes(class="form-control") }}
+        </div>
+        <div>
+            {{ form.submit(class="btn btn-primary") }}
+        </div>
+    </form>
+</div>
+{% endblock %}

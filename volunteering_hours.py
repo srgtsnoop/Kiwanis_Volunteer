@@ -44,8 +44,48 @@ def log_hours():
 
     print(f"✅ Logged {total_hours} hours for {name} on {date}.")
 
+def log_hours_bulk():
+    print("\n--- Bulk Log Volunteer Hours ---")
+    event = input("Event/Task: ").strip()
+    date_str = input("Date (YYYY-MM-DD) [Leave blank for today]: ").strip()
+    start = input("Start Time (HH:MM in 24-hr): ").strip()
+    end = input("End Time (HH:MM in 24-hr): ").strip()
+    notes = input("Optional Notes: ").strip()
+    names_input = input("Volunteer Names (comma separated): ").strip()
+    names = [name.strip() for name in names_input.split(",") if name.strip()]
+
+    if not names:
+        print("❌ No volunteer names entered.")
+        return
+
+    try:
+        date = date_str if date_str else datetime.today().strftime('%Y-%m-%d')
+        start_dt = datetime.strptime(f"{date} {start}", "%Y-%m-%d %H:%M")
+        end_dt = datetime.strptime(f"{date} {end}", "%Y-%m-%d %H:%M")
+        total_hours = round((end_dt - start_dt).seconds / 3600, 2)
+    except Exception as e:
+        print("❌ Error with date/time format:", e)
+        return
+
+    with open(CSV_FILE, mode='a', newline='') as file:
+        writer = csv.DictWriter(file, fieldnames=FIELDNAMES)
+        for name in names:
+            writer.writerow({
+                "Date": date,
+                "Volunteer Name": name,
+                "Event": event,
+                "Start Time": start,
+                "End Time": end,
+                "Total Hours": total_hours,
+                "Notes": notes
+            })
+            print(f"✅ Logged {total_hours} hours for {name} on {date}.")
+
 def view_entries():
     print("\n--- All Volunteer Entries ---")
+    if not os.path.exists(CSV_FILE):
+        print("No entries yet.")
+        return
     with open(CSV_FILE, newline='') as file:
         reader = csv.DictReader(file)
         for row in reader:
@@ -54,6 +94,9 @@ def view_entries():
 def summary():
     print("\n--- Volunteer Summary ---")
     totals = {}
+    if not os.path.exists(CSV_FILE):
+        print("No entries yet.")
+        return
     with open(CSV_FILE, newline='') as file:
         reader = csv.DictReader(file)
         for row in reader:
@@ -68,17 +111,20 @@ def main():
     while True:
         print("\n=== Volunteer Tracker ===")
         print("1. Log Hours")
-        print("2. View All Entries")
-        print("3. View Summary")
-        print("4. Exit")
+        print("2. Bulk Log Hours")
+        print("3. View All Entries")
+        print("4. View Summary")
+        print("5. Exit")
         choice = input("Choose an option: ").strip()
         if choice == '1':
             log_hours()
         elif choice == '2':
-            view_entries()
+            log_hours_bulk()
         elif choice == '3':
-            summary()
+            view_entries()
         elif choice == '4':
+            summary()
+        elif choice == '5':
             print("👋 Goodbye!")
             break
         else:
