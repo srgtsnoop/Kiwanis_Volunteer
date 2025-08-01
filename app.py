@@ -15,6 +15,10 @@ from flask_login import (
     login_required, current_user
 )
 
+from flask_mail import Mail
+
+mail = Mail(app)
+
 # Role guard + hierarchy
 from utils import ROLE_LEVEL, role_required
 
