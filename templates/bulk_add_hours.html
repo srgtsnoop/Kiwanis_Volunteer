@@ -1,46 +1,85 @@
-{% extends "base.html" %}
-{% block content %}
-<div class="container mt-4">
-    <h2>Bulk Add Volunteer Hours</h2>
-    <form method="post">
-        {{ form.hidden_tag() }}
+{% extends 'base.html' %}
 
-        <div class="mb-3">
-            {{ form.event.label(class="form-label") }}
-            {{ form.event(class="form-control") }}
-        </div>
-        <div class="mb-3">
-            {{ form.date.label(class="form-label") }}
-            {{ form.date(class="form-control") }}
-        </div>
-        <div class="mb-3">
-            {{ form.start_time.label(class="form-label") }}
-            {{ form.start_time(class="form-control") }}
-        </div>
-        <div class="mb-3">
-            {{ form.end_time.label(class="form-label") }}
-            {{ form.end_time(class="form-control") }}
-        </div>
-        <div class="mb-3">
-            {{ form.total_hours.label(class="form-label") }}
-            {{ form.total_hours(class="form-control") }}
-        </div>
-        <div class="mb-3">
-            {{ form.volunteers.label(class="form-label") }}
-            <select name="volunteers" class="form-control" multiple required>
-                {% for value, label in form.volunteers.choices %}
-                    <option value="{{ value }}">{{ label }}</option>
-                {% endfor %}
-            </select>
-            <small class="form-text text-muted">Hold Ctrl (Windows) or Cmd (Mac) to select multiple volunteers.</small>
-        </div>
-        <div class="mb-3">
-            {{ form.notes.label(class="form-label") }}
-            {{ form.notes(class="form-control") }}
-        </div>
-        <div>
-            {{ form.submit(class="btn btn-primary") }}
-        </div>
+{% block title %}Bulk Add Volunteer Hours{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-6">
+    <h2>Bulk Add Volunteer Hours</h2>
+    <form method="POST" action="{{ url_for('bulk_add_hours') }}">
+      {{ form.hidden_tag() }}
+
+      <div class="mb-3">
+        <label for="event" class="form-label">Event / Description</label>
+        <input
+          type="text"
+          id="event"
+          name="event"
+          class="form-control"
+          value="{{ form.event.data or '' }}"
+          required>
+      </div>
+
+      <div class="mb-3">
+        <label for="date" class="form-label">Date</label>
+        <input
+          type="date"
+          id="date"
+          name="date"
+          class="form-control"
+          value="{{ form.date.data or '' }}"
+          required>
+      </div>
+
+      <div class="mb-3">
+        <label for="start_time" class="form-label">Start Time</label>
+        <input
+          type="time"
+          id="start_time"
+          name="start_time"
+          class="form-control"
+          value="{{ form.start_time.data or '' }}"
+          required>
+      </div>
+
+      <div class="mb-3">
+        <label for="end_time" class="form-label">End Time</label>
+        <input
+          type="time"
+          id="end_time"
+          name="end_time"
+          class="form-control"
+          value="{{ form.end_time.data or '' }}"
+          required>
+      </div>
+
+      <div class="mb-3">
+        <label for="volunteers" class="form-label">Volunteers</label>
+        <select
+          id="volunteers"
+          name="volunteers"
+          class="form-control"
+          multiple
+          required>
+          {% for value, label in form.volunteers.choices %}
+            <option value="{{ value }}">{{ label }}</option>
+          {% endfor %}
+        </select>
+        <small class="form-text text-muted">Hold Ctrl (Windows) or Cmd (Mac) to select multiple volunteers.</small>
+      </div>
+
+      <div class="mb-3">
+        <label for="notes" class="form-label">Notes (optional)</label>
+        <textarea
+          id="notes"
+          name="notes"
+          class="form-control"
+          rows="3">{{ form.notes.data or '' }}</textarea>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Add Hours for Group</button>
+      <a href="{{ url_for('index') }}" class="btn btn-link">Cancel</a>
     </form>
+  </div>
 </div>
 {% endblock %}
