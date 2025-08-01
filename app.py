@@ -132,6 +132,12 @@ def login():
         flash('Invalid username or password', 'danger')
     return render_template('login.html')
 
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    flash("Forgot password feature is coming soon!", "info")
+    return render_template('forgot_password.html')
+
+
 @app.route('/logout')
 @login_required
 def logout():
