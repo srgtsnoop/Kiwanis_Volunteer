@@ -2,6 +2,7 @@ Flask
 Flask_SQLAlchemy
 Flask_Login
 Flask-Mail
+flask-wtf
 pandas
 openpyxl
 gunicorn
