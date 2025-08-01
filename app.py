@@ -309,23 +309,40 @@ def bulk_add_hours():
 
     form = BulkHoursForm()
     form.volunteers.choices = [(u.id, u.full_name) for u in User.query.order_by(User.full_name).all()]
-    if form.validate_on_submit():
-        for volunteer_id in form.volunteers.data:
-            user = User.query.get(volunteer_id)
+
+    if request.method == "POST":
+        # Use request.form to get the data directly
+        event = request.form['event']
+        date = request.form['date']
+        start_time = request.form['start_time']
+        end_time = request.form['end_time']
+        notes = request.form.get('notes', '')
+        volunteer_ids = request.form.getlist('volunteers')
+
+        try:
+            start_dt = datetime.strptime(f"{date} {start_time}", "%Y-%m-%d %H:%M")
+            end_dt = datetime.strptime(f"{date} {end_time}", "%Y-%m-%d %H:%M")
+            total_hours = round((end_dt - start_dt).seconds / 3600, 2)
+        except Exception:
+            total_hours = 0
+
+        for volunteer_id in volunteer_ids:
+            user = User.query.get(int(volunteer_id))
             entry = VolunteerEntry(
-                user_id=volunteer_id,
-                date=form.date.data.strftime('%Y-%m-%d'),
+                user_id=user.id,
+                date=date,
                 name=user.full_name,
-                event=form.event.data,
-                start_time=form.start_time.data,
-                end_time=form.end_time.data,
-                total_hours=form.total_hours.data,
-                notes=form.notes.data,
+                event=event,
+                start_time=start_time,
+                end_time=end_time,
+                total_hours=total_hours,
+                notes=notes
             )
             db.session.add(entry)
         db.session.commit()
         flash('Bulk volunteer hours added!', 'success')
-        return redirect(url_for('volunteer_dashboard'))  # Replace with your dashboard route
+        return redirect(url_for('index'))
+
     return render_template('bulk_add_hours.html', form=form)
 
 
