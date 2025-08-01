@@ -15,9 +15,8 @@ from flask_login import (
     login_required, current_user
 )
 
+from flask import Flask
 from flask_mail import Mail
-
-mail = Mail(app)
 
 # Role guard + hierarchy
 from utils import ROLE_LEVEL, role_required
@@ -30,6 +29,8 @@ load_dotenv()
 
 # App & DB config
 app = Flask(__name__)
+
+mail = Mail(app)
 
 if os.environ.get("RENDER") == "true" or os.environ.get("ON_RENDER") == "true":
     app.config.from_object("config.ProductionConfig")
