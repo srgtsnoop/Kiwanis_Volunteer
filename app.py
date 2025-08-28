@@ -31,7 +31,7 @@ from models import db, User, VolunteerEntry
 load_dotenv()
 
 # forgot password
-from flask_mail import Mail, Message
+from flask_mail import Mail
 
 mail = Mail()  # create the extension object first
 
