@@ -31,14 +31,13 @@ from models import db, User, VolunteerEntry
 load_dotenv()
 
 # forgot password
-mail = Mail()
+from flask_mail import Mail, Message
 
-# App & DB config
+mail = Mail()  # create the extension object first
+
 app = Flask(__name__)
 
-mail.init_app(app)
-
-
+# ✅ LOAD CONFIG HERE (your existing environment switch)
 if os.environ.get("RENDER") == "true" or os.environ.get("ON_RENDER") == "true":
     app.config.from_object("config.ProductionConfig")
 elif os.environ.get("FLASK_ENV") == "development":
@@ -47,7 +46,10 @@ elif os.environ.get("FLASK_ENV") == "testing":
     app.config.from_object("config.TestingConfig")
 else:
     app.config.from_object("config.DevelopmentConfig")
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# now that app.config is populated, init mail
+mail.init_app(app)
+
 
 # Init DB
 db.init_app(app)
