@@ -6,7 +6,7 @@ DATA_DIR = BASE_DIR / "data"
 DATA_DIR.mkdir(exist_ok=True)
 
 class BaseConfig:
-    SECRET_KEY = os.environ.get("SECRET_KEY", "you-should-override-this")
+    SECRET_KEY = os.environ.get("SECRET_KEY", "de6486517842123d4c3844bc5e38694c")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     MAIL_SERVER = os.environ.get('MAIL_SERVER', 'smtp.gmail.com')
