@@ -137,9 +137,7 @@ def login():
 
 @app.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
-    flash("Forgot password feature is coming soon!", "info")
     return render_template('forgot_password.html')
-
 
 @app.route('/logout')
 @login_required
