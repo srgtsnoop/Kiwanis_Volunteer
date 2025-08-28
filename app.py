@@ -15,7 +15,7 @@ from flask_login import (
     LoginManager, login_user, logout_user,
     login_required, current_user
 )
-from flask_mail import Mail
+from flask_mail import Mail, Messages
 
 from models import db, User, VolunteerEntry
 from forms import BulkHoursForm
@@ -30,10 +30,14 @@ from models import db, User, VolunteerEntry
 # Load .env
 load_dotenv()
 
+# forgot password
+mail = Mail()
+
 # App & DB config
 app = Flask(__name__)
 
-mail = Mail(app)
+mail.init_app(app)
+
 
 if os.environ.get("RENDER") == "true" or os.environ.get("ON_RENDER") == "true":
     app.config.from_object("config.ProductionConfig")
