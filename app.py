@@ -15,7 +15,7 @@ from flask_login import (
     LoginManager, login_user, logout_user,
     login_required, current_user
 )
-from flask_mail import Mail, Messages
+from flask_mail import Mail, Message
 
 from models import db, User, VolunteerEntry
 from forms import BulkHoursForm
