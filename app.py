@@ -1,31 +1,21 @@
+# --- Standard library ---
 import os
-from pathlib import Path
 from datetime import datetime
+from pathlib import Path
 import io
 
+# --- Third-party ---
 import pandas as pd
 import click
 from dotenv import load_dotenv
-
-from flask import (
-    Flask, render_template, request, redirect,
-    url_for, flash, abort, send_file
-)
-from flask_login import (
-    LoginManager, login_user, logout_user,
-    login_required, current_user
-)
+from flask import Flask, render_template, request, redirect, url_for, flash, abort, send_file, current_app
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_mail import Mail, Message
 
+# --- Local ---
 from models import db, User, VolunteerEntry
 from forms import BulkHoursForm
-
-
-# Role guard + hierarchy
 from utils import ROLE_LEVEL, role_required
-
-# Shared db & models
-from models import db, User, VolunteerEntry
 
 # Load .env
 load_dotenv()
